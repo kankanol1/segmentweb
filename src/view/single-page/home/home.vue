@@ -1,83 +1,376 @@
-<template>
-  <div>
-    <Row :gutter="20">
-      <i-col :xs="12" :md="8" :lg="4" v-for="(infor, i) in inforCardData" :key="`infor-${i}`" style="height: 120px;padding-bottom: 10px;">
-        <infor-card shadow :color="infor.color" :icon="infor.icon" :icon-size="36">
-          <count-to :end="infor.count" count-class="count-style"/>
-          <p>{{ infor.title }}</p>
-        </infor-card>
-      </i-col>
-    </Row>
-    <Row :gutter="20" style="margin-top: 10px;">
-      <i-col :md="24" :lg="8" style="margin-bottom: 20px;">
-        <Card shadow>
-          <chart-pie style="height: 300px;" :value="pieData" text="用户访问来源"></chart-pie>
-        </Card>
-      </i-col>
-      <i-col :md="24" :lg="16" style="margin-bottom: 20px;">
-        <Card shadow>
-          <chart-bar style="height: 300px;" :value="barData" text="每周用户活跃量"/>
-        </Card>
-      </i-col>
-    </Row>
-    <Row>
-      <Card shadow>
-        <example style="height: 310px;"/>
-      </Card>
-    </Row>
-  </div>
-</template>
+<style lang="less">
+  .map-box {
+    position: relative;
+    background-color: #000;
+    width: 100%;
+    height: 100%;
 
-<script>
-import InforCard from '_c/info-card'
-import CountTo from '_c/count-to'
-import { ChartPie, ChartBar } from '_c/charts'
-import Example from './example.vue'
-export default {
-  name: 'home',
-  components: {
-    InforCard,
-    CountTo,
-    ChartPie,
-    ChartBar,
-    Example
-  },
-  data () {
-    return {
-      inforCardData: [
-        { title: '新增用户', icon: 'md-person-add', count: 803, color: '#2d8cf0' },
-        { title: '累计点击', icon: 'md-locate', count: 232, color: '#19be6b' },
-        { title: '新增问答', icon: 'md-help-circle', count: 142, color: '#ff9900' },
-        { title: '分享统计', icon: 'md-share', count: 657, color: '#ed3f14' },
-        { title: '新增互动', icon: 'md-chatbubbles', count: 12, color: '#E46CBB' },
-        { title: '新增页面', icon: 'md-map', count: 14, color: '#9A66E4' }
-      ],
-      pieData: [
-        { value: 335, name: '直接访问' },
-        { value: 310, name: '邮件营销' },
-        { value: 234, name: '联盟广告' },
-        { value: 135, name: '视频广告' },
-        { value: 1548, name: '搜索引擎' }
-      ],
-      barData: {
-        Mon: 13253,
-        Tue: 34235,
-        Wed: 26321,
-        Thu: 12340,
-        Fri: 24643,
-        Sat: 1322,
-        Sun: 1324
+    .ivu-divider-small {
+      margin: 4px 0;
+    }
+
+    &-user {
+      position: absolute;
+      z-index: 10;
+      top: 10px;
+      right: 10px;
+    }
+
+    &-user:hover {
+      .map-box-con {
+        display: block;
       }
     }
-  },
-  mounted () {
-    //
-  }
-}
-</script>
 
-<style lang="less">
-.count-style{
-  font-size: 50px;
-}
+    &-con {
+      position: absolute;
+      display: none;
+      right: 20px;
+      top: 0;
+      width: 120px;
+      padding-right: 20px;
+
+      .box {
+        width: 100%;
+        font-size: 14px;
+        background-color: #0f3a65;
+        color: #eee;
+        border-radius: 4px;
+        padding: 10px;
+      }
+
+      .logout {
+        cursor: pointer;
+        color: #2d8cf0;
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        border: 1px solid rgba(45, 140, 240, 0);
+        margin-top: 10px;
+      }
+
+      .logout:hover {
+        border: 1px solid #2d8cf0;
+      }
+    }
+  }
+
+  .map-con {
+    width: 300px;
+    height: 100%;
+    z-index: 10;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #0d131a;
+    padding: 20px 0;
+    color: #fff;
+
+    &-icons {
+      font-size: 30px;
+      color: #fff
+    }
+
+    &-title {
+      font-size: 18px;
+      color: #fff;
+      text-align: center;
+      padding-bottom: 10px;
+    }
+  }
+
+  .map-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 30px;
+    height: 200px;
+    text-align: center;
+    line-height: 200px;
+    border: 1px solid #2d8cf0;
+    -moz-border-radius-bottomright: 4px;
+    background-color: rgba(45, 140, 240, 0.42);
+
+    &-icons {
+      font-size: 30px;
+      color: #fff
+    }
+  }
+
+  .ol-zoom.ol-unselectable.ol-control {
+    position: absolute;
+    right: 0;
+    width: 30px;
+    top: 20%;
+  }
+
+  .map-button {
+    padding: 10px;
+    text-align: center;
+
+    span {
+      display: inline-block;
+      height: 30px;
+      line-height: 30px;
+      width: 100px;
+      font-size: 14px;
+      border: 1px solid #2d8cf0;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #2d8cf0;
+    }
+  }
+
+  .map-select {
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid #2d8cf0;
+    border-radius: 10px;
+    font-size: 14px;
+
+    &-title {
+      font-size: 16px;
+      padding-bottom: 10px;
+    }
+  }
+
+  .title-box {
+    padding-bottom: 10px;
+
+    .titles {
+      line-height: 30px;
+    }
+  }
+
 </style>
+<template>
+  <div class="map-box" id="mainDiv">
+    <div class="map-box-user">
+      <Avatar style="background-color: #1a3a65" icon="ios-person"/>
+      <div class="map-box-con">
+        <div class="box">
+          <span>用户：测试</span>
+          <!--          <Divider size="small"></Divider>-->
+          <a class="logout" @click="logout">注销登录</a>
+        </div>
+      </div>
+    </div>
+    <div v-if="icons" class="map-con">
+      <div>
+        <Row>
+          <Col span="20" class="map-con-title">图像语义分割处理平台</Col>
+          <Col span="4">
+            <Icon type="ios-arrow-back" class="map-con-icons" @click="setIcons"/>
+          </Col>
+        </Row>
+      </div>
+      <div class="map-select">
+        <div class="map-select-title">
+          <Icon type="ios-browsers" size="26" color="#2d8cf0"/>
+          区域选择
+        </div>
+        <div class="title-box">
+          <Row>
+            <Col span="7" class="titles">形状选择：</Col>
+            <Col span="14">
+              <Select v-model="typeSelect">
+                <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+              </Select>
+            </Col>
+
+          </Row>
+        </div>
+        <div class="title-box">
+          <Row>
+            <Col span="7" class="titles">
+              绘制区域：
+            </Col>
+            <Col span="14">
+              <RadioGroup v-model="disabledGroup">
+                <Row>
+                  <Col span="12">
+                    <Radio label="绘制"></Radio>
+                  </Col>
+                  <Col span="12">
+                    <Radio label="全图"></Radio>
+                  </Col>
+                </Row>
+              </RadioGroup>
+
+            </Col>
+          </Row>
+        </div>
+
+      </div>
+      <!--      <div class="map-select">
+              <div class="map-select-title"><Icon type="ios-settings" size="26" color="#2d8cf0" /> 设置</div>
+              <RadioGroup v-model="disabledGroup">
+                <Row>
+                  <Col span="12">
+                    <Radio label="绘制"></Radio>
+                  </Col>
+                  <Col span="12">
+                    <Radio label="全图"></Radio>
+                  </Col>
+                </Row>
+              </RadioGroup>
+            </div>
+            <div class="map-select">
+              <div class="map-select-title"><Icon type="logo-buffer" size="26" color="#2d8cf0" /> 数据</div>
+              <RadioGroup v-model="disabledGroup">
+                <Row>
+                  <Col span="12">
+                    <Radio label="绘制"></Radio>
+                  </Col>
+                  <Col span="12">
+                    <Radio label="全图"></Radio>
+                  </Col>
+                </Row>
+              </RadioGroup>
+            </div>-->
+      <div class="map-button">
+        <Row>
+          <Col span="24"><span>开始编译</span></Col>
+          <!--          <Col span="12"></Col>-->
+        </Row>
+      </div>
+      <div>
+        <span @click="clearSelect">清除</span>
+      </div>
+    </div>
+    <div class="map-icon" @click="setIcons" v-else>
+      <Icon class="map-icon-icons" type="ios-arrow-forward"/>
+    </div>
+  </div>
+</template>
+<script>
+  import {mapActions} from 'vuex';
+  import 'ol/ol.css';
+  import Draw, {
+    createBox,
+    createRegularPolygon,
+  } from 'ol/interaction/Draw';
+  import Map from 'ol/Map';
+  import Polygon from 'ol/geom/Polygon';
+  import View from 'ol/View';
+  import {OSM, Vector as VectorSource} from 'ol/source';
+  import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
+  import {fromLonLat} from "ol/proj";
+
+  export default {
+    name: 'home',
+    components: {},
+    data() {
+      return {
+        map: undefined,
+        icons: true,
+        disabledGroup: '绘制',
+        typeSelect: 'Polygon',
+        draw: undefined,
+        source: undefined,
+        cityList: [
+          {
+            value: 'Circle',
+            label: 'Circle'
+          }, {
+            value: 'Square',
+            label: 'Square'
+          }, {
+            value: 'Box',
+            label: 'Box'
+          }, {
+            value: 'Star',
+            label: 'Star'
+          }, {
+            value: 'None',
+            label: 'None'
+          },
+        ],
+        model1: '',
+      }
+    },
+    watch: {
+      'typeSelect'(val) {
+        this.map.removeInteraction(this.draw);
+        this.addInteraction();
+      }
+    },
+    mounted() {
+      var raster = new TileLayer({
+        source: new OSM(),
+      });
+
+      this.source = new VectorSource({wrapX: false});
+
+      var vector = new VectorLayer({
+        source: this.source,
+      });
+
+      this.map = new Map({
+        layers: [raster, vector],
+        target: 'mainDiv',
+        view: new View({
+          center: fromLonLat([119.60753817138888, 30.49043631527778]),
+          zoom: 12,
+        }),
+        /*layers: [
+          new TileLayer({
+            source: new XYZ({
+              //PRCQV0Stg2Pgj9EKapMf6c9zdijg0MQ7
+              url: "https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+              wrapX: true
+            })
+          })
+        ]*/
+      });
+
+      this.testMap();
+      // this.addInteraction();
+
+    },
+    methods: {
+      testMap() {
+        var geometryFunction = createBox();
+        this.draw = new Draw({
+          source: this.source,
+          type: 'Circle',
+          geometryFunction: geometryFunction,
+        });
+        this.map.addInteraction(this.draw);
+      },
+      ...mapActions([
+        'handleLogOut'
+      ]),
+      logout() {
+        this.handleLogOut().then(() => {
+          this.$router.push({
+            name: 'login'
+          })
+        })
+      },
+      setIcons() {
+        this.icons = !this.icons;
+      },
+      clearSelect() {
+        // this.map.removeInteraction(draw);
+        console.log(this.draw)
+        this.map.removeInteraction(this.draw);
+        this.testMap();
+      },
+      initPointMap() {
+
+      },
+      addInteraction() {
+        var value = this.typeSelect;
+        if (value !== 'None') {
+          draw = new Draw({
+            source: source,
+            type: this.typeSelect,
+          });
+          map.addInteraction(draw);
+        }
+      }
+    },
+  }
+</script>

@@ -8,7 +8,7 @@
       <Card icon="log-in" title="欢迎登录" :bordered="false">
         <div class="form-con">
           <login-form @on-success-valid="handleSubmit"></login-form>
-          <p class="login-tip">输入任意用户名和密码即可</p>
+          <span>还没有账户？ <a @click="registerPage">立即注册</a></span>
         </div>
       </Card>
     </div>
@@ -35,6 +35,9 @@ export default {
           })
         })
       })
+    },
+    registerPage(){
+      this.$router.push({name: "register"})
     }
   }
 }
