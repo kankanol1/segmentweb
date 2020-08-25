@@ -15,33 +15,33 @@
 </template>
 
 <script>
-  import RegisterForm from '_c/register-form'
-  import { mapActions } from 'vuex'
-  export default {
-    components: {
-      RegisterForm
-    },
-    methods: {
-      ...mapActions([
-        'handleRegister',
-        'getUserInfo'
-      ]),
-      handleSubmit ({ userName, password,confirm }) {
-        console.log(userName, password,confirm );
-        this.handleRegister({ userName, password,confirm }).then(res => {
-          console.log(res);
-          /*this.getUserInfo().then(res => {
+import RegisterForm from '_c/register-form'
+import { mapActions } from 'vuex'
+export default {
+  components: {
+    RegisterForm
+  },
+  methods: {
+    ...mapActions([
+      'handleRegister',
+      'getUserInfo'
+    ]),
+    handleSubmit ({ userName, password, confirm }) {
+      console.log(userName, password, confirm)
+      this.handleRegister({ userName, password, confirm }).then(res => {
+        console.log(res)
+        /* this.getUserInfo().then(res => {
             /!*this.$router.push({
               name: this.$config.homeName
             })*!/
-          })*/
-        })
-      },
-      loginPage(){
-        this.$router.push({name: "login"})
-      }
+          }) */
+      })
+    },
+    loginPage () {
+      this.$router.push({ name: 'login' })
     }
   }
+}
 </script>
 
 <style>

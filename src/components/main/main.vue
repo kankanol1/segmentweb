@@ -3,13 +3,13 @@
 </template>
 <script>
 
-  export default {
-    name: 'Main',
-    data () {
-      return {
+export default {
+  name: 'Main',
+  data () {
+    return {
 
-      }
-    },
-
+    }
   }
+
+}
 </script>

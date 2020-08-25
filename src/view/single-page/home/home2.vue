@@ -220,63 +220,63 @@
   </div>
 </template>
 <script>
-  import "ol/ol.css";
-  import { mapActions } from 'vuex';
-  import Map from 'ol/Map';
-  import View from 'ol/View';
-  import TileLayer from 'ol/layer/Tile';
-  import XYZ from 'ol/source/XYZ';
-  import Feature from "ol/Feature";
-  import Point from "ol/geom/Point";
-  import { fromLonLat } from "ol/proj";
-  export default {
-    name: 'home',
-    components: {
+import 'ol/ol.css'
+import { mapActions } from 'vuex'
+import Map from 'ol/Map'
+import View from 'ol/View'
+import TileLayer from 'ol/layer/Tile'
+import XYZ from 'ol/source/XYZ'
+import Feature from 'ol/Feature'
+import Point from 'ol/geom/Point'
+import { fromLonLat } from 'ol/proj'
+export default {
+  name: 'home',
+  components: {
 
-    },
-    data () {
-      return {
-        map:'',
-        icons:true,
-        disabledGroup:'绘制'
-      }
-    },
-    mounted() {
-      this.initPointMap();
-    },
-    methods: {
-      ...mapActions([
-        'handleLogOut'
-      ]),
-      logout () {
-        this.handleLogOut().then(() => {
-          this.$router.push({
-            name: 'login'
-          })
+  },
+  data () {
+    return {
+      map: '',
+      icons: true,
+      disabledGroup: '绘制'
+    }
+  },
+  mounted () {
+    this.initPointMap()
+  },
+  methods: {
+    ...mapActions([
+      'handleLogOut'
+    ]),
+    logout () {
+      this.handleLogOut().then(() => {
+        this.$router.push({
+          name: 'login'
         })
-      },
-      setIcons(){
-        this.icons = !this.icons;
-      },
-      initPointMap() {
-        this.map = new Map({
-          target: "mainDiv",
-          view: new View({
-            center: fromLonLat([119.60753817138888, 30.49043631527778]),
-            projection: "EPSG:3857",
-            zoom: 10
-          }),
-          layers: [
-            new TileLayer({
-              source: new XYZ({
-                //PRCQV0Stg2Pgj9EKapMf6c9zdijg0MQ7
-                url: "https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                wrapX: true
-              })
-            })
-          ]
-        });
-      },
+      })
     },
+    setIcons () {
+      this.icons = !this.icons
+    },
+    initPointMap () {
+      this.map = new Map({
+        target: 'mainDiv',
+        view: new View({
+          center: fromLonLat([119.60753817138888, 30.49043631527778]),
+          projection: 'EPSG:3857',
+          zoom: 10
+        }),
+        layers: [
+          new TileLayer({
+            source: new XYZ({
+              // PRCQV0Stg2Pgj9EKapMf6c9zdijg0MQ7
+              url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+              wrapX: true
+            })
+          })
+        ]
+      })
+    }
   }
+}
 </script>

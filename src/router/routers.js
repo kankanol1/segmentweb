@@ -17,7 +17,6 @@ import parentView from '@/components/parent-view'
  * }
  */
 
-
 export default [
   {
     path: '/login',

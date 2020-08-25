@@ -17,7 +17,6 @@ import parentView from '@/components/parent-view'
  * }
  */
 
-
 export default [
   {
     path: '/login',
@@ -60,7 +59,7 @@ export default [
       }
     ]
   },
-  /*{
+  /* {
     path: '',
     name: 'doc',
     meta: {
@@ -323,7 +322,7 @@ export default [
         component: () => import('@/view/i18n/i18n-page.vue')
       }
     ]
-  },*/
+  }, */
   {
     path: '/error_store',
     name: 'error_store',

@@ -245,76 +245,76 @@
   </div>
 </template>
 <script>
-  import {mapActions} from 'vuex';
-  import 'ol/ol.css';
-  import Draw, {
-    createBox,
-    createRegularPolygon,
-  } from 'ol/interaction/Draw';
-  import Map from 'ol/Map';
-  import Polygon from 'ol/geom/Polygon';
-  import View from 'ol/View';
-  import {OSM, Vector as VectorSource} from 'ol/source';
-  import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
-  import {fromLonLat} from "ol/proj";
+import { mapActions } from 'vuex'
+import 'ol/ol.css'
+import Draw, {
+  createBox,
+  createRegularPolygon
+} from 'ol/interaction/Draw'
+import Map from 'ol/Map'
+import Polygon from 'ol/geom/Polygon'
+import View from 'ol/View'
+import { OSM, Vector as VectorSource } from 'ol/source'
+import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
+import { fromLonLat } from 'ol/proj'
 
-  export default {
-    name: 'home',
-    components: {},
-    data() {
-      return {
-        map: undefined,
-        icons: true,
-        disabledGroup: '绘制',
-        typeSelect: 'Polygon',
-        draw: undefined,
-        source: undefined,
-        cityList: [
-          {
-            value: 'Circle',
-            label: 'Circle'
-          }, {
-            value: 'Square',
-            label: 'Square'
-          }, {
-            value: 'Box',
-            label: 'Box'
-          }, {
-            value: 'Star',
-            label: 'Star'
-          }, {
-            value: 'None',
-            label: 'None'
-          },
-        ],
-        model1: '',
-      }
-    },
-    watch: {
-      'typeSelect'(val) {
-        this.map.removeInteraction(this.draw);
-        this.addInteraction();
-      }
-    },
-    mounted() {
-      var raster = new TileLayer({
-        source: new OSM(),
-      });
+export default {
+  name: 'home',
+  components: {},
+  data () {
+    return {
+      map: undefined,
+      icons: true,
+      disabledGroup: '绘制',
+      typeSelect: 'Polygon',
+      draw: undefined,
+      source: undefined,
+      cityList: [
+        {
+          value: 'Circle',
+          label: 'Circle'
+        }, {
+          value: 'Square',
+          label: 'Square'
+        }, {
+          value: 'Box',
+          label: 'Box'
+        }, {
+          value: 'Star',
+          label: 'Star'
+        }, {
+          value: 'None',
+          label: 'None'
+        }
+      ],
+      model1: ''
+    }
+  },
+  watch: {
+    'typeSelect' (val) {
+      this.map.removeInteraction(this.draw)
+      this.addInteraction()
+    }
+  },
+  mounted () {
+    var raster = new TileLayer({
+      source: new OSM()
+    })
 
-      this.source = new VectorSource({wrapX: false});
+    this.source = new VectorSource({ wrapX: false })
 
-      var vector = new VectorLayer({
-        source: this.source,
-      });
+    var vector = new VectorLayer({
+      source: this.source
+    })
 
-      this.map = new Map({
-        layers: [raster, vector],
-        target: 'mainDiv',
-        view: new View({
-          center: fromLonLat([119.60753817138888, 30.49043631527778]),
-          zoom: 12,
-        }),
-        /*layers: [
+    this.map = new Map({
+      layers: [raster, vector],
+      target: 'mainDiv',
+      view: new View({
+        center: fromLonLat([119.60753817138888, 30.49043631527778]),
+        zoom: 12
+      })
+      /* layers: [
           new TileLayer({
             source: new XYZ({
               //PRCQV0Stg2Pgj9EKapMf6c9zdijg0MQ7
@@ -322,55 +322,54 @@
               wrapX: true
             })
           })
-        ]*/
-      });
+        ] */
+    })
 
-      this.testMap();
-      // this.addInteraction();
-
+    this.testMap()
+    // this.addInteraction();
+  },
+  methods: {
+    testMap () {
+      var geometryFunction = createBox()
+      this.draw = new Draw({
+        source: this.source,
+        type: 'Circle',
+        geometryFunction: geometryFunction
+      })
+      this.map.addInteraction(this.draw)
     },
-    methods: {
-      testMap() {
-        var geometryFunction = createBox();
-        this.draw = new Draw({
-          source: this.source,
-          type: 'Circle',
-          geometryFunction: geometryFunction,
-        });
-        this.map.addInteraction(this.draw);
-      },
-      ...mapActions([
-        'handleLogOut'
-      ]),
-      logout() {
-        this.handleLogOut().then(() => {
-          this.$router.push({
-            name: 'login'
-          })
+    ...mapActions([
+      'handleLogOut'
+    ]),
+    logout () {
+      this.handleLogOut().then(() => {
+        this.$router.push({
+          name: 'login'
         })
-      },
-      setIcons() {
-        this.icons = !this.icons;
-      },
-      clearSelect() {
-        // this.map.removeInteraction(draw);
-        console.log(this.draw)
-        this.map.removeInteraction(this.draw);
-        this.testMap();
-      },
-      initPointMap() {
-
-      },
-      addInteraction() {
-        var value = this.typeSelect;
-        if (value !== 'None') {
-          draw = new Draw({
-            source: source,
-            type: this.typeSelect,
-          });
-          map.addInteraction(draw);
-        }
-      }
+      })
     },
+    setIcons () {
+      this.icons = !this.icons
+    },
+    clearSelect () {
+      // this.map.removeInteraction(draw);
+      console.log(this.draw)
+      this.map.removeInteraction(this.draw)
+      this.testMap()
+    },
+    initPointMap () {
+
+    },
+    addInteraction () {
+      var value = this.typeSelect
+      if (value !== 'None') {
+        draw = new Draw({
+          source: source,
+          type: this.typeSelect
+        })
+        map.addInteraction(draw)
+      }
+    }
   }
+}
 </script>

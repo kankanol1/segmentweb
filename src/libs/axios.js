@@ -37,7 +37,7 @@ class HttpRequest {
     // 请求拦截
     instance.interceptors.request.use(config => {
       // 添加全局的loading...
-      console.log("请求拦截",config)
+      console.log('请求拦截', config)
       if (!Object.keys(this.queue).length) {
         // Spin.show() // 不建议开启，因为界面不友好
       }
@@ -49,7 +49,7 @@ class HttpRequest {
     })
     // 响应拦截
     instance.interceptors.response.use(res => {
-      console.log("响应拦截",res)
+      console.log('响应拦截', res)
       this.destroy(url)
       const { data, status } = res
       return { data, status }

@@ -36,8 +36,8 @@ export default {
         })
       })
     },
-    registerPage(){
-      this.$router.push({name: "register"})
+    registerPage () {
+      this.$router.push({ name: 'register' })
     }
   }
 }

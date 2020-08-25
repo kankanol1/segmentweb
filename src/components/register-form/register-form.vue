@@ -45,7 +45,7 @@ export default {
           { required: true, message: '密码不能为空', trigger: 'blur' }
         ]
       }
-    },
+    }
 
   },
   data () {
@@ -58,15 +58,15 @@ export default {
       confirmRules: { required: true,
         message: '不能为空',
         trigger: 'blur',
-        validator:(rule, value, callback) => {
-          console.log(value);
-          console.log(this.form);
+        validator: (rule, value, callback) => {
+          console.log(value)
+          console.log(this.form)
           if (this.form.password !== '' && value === '') {
-            callback(new Error('确认密码不能为空'));
+            callback(new Error('确认密码不能为空'))
           } else if (this.form.password !== value) {
-            callback(new Error('新密码和确认密码应相同'));
+            callback(new Error('新密码和确认密码应相同'))
           } else {
-            callback();
+            callback()
           }
         }
       }
@@ -84,7 +84,7 @@ export default {
   methods: {
     handleSubmit () {
       this.$refs.registerForm.validate((valid) => {
-        console.log(valid);
+        console.log(valid)
         if (valid) {
           this.$emit('on-success-valid', {
             userName: this.form.userName,
