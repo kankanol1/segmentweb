@@ -2,6 +2,7 @@ import {
   login,
   logout,
   getUserInfo,
+  addUserInfo,
   getMessage,
   getContentByMsgId,
   hasRead,
@@ -82,8 +83,26 @@ export default {
           password
         }).then(res => {
           const data = res.data
-          commit('setToken', data.token)
-          resolve()
+          if (data.token === 'admin') {
+            commit('setToken', data.token)
+            resolve({ msg: 'success' })
+          } else {
+            resolve({ msg: 'failed' })
+          }
+        }).catch(err => {
+          reject(err)
+        })
+      })
+    },
+    // 注册
+    handleRegister ({ commit }, { userName, password }) {
+      userName = userName.trim()
+      return new Promise((resolve, reject) => {
+        addUserInfo({
+          userName,
+          password
+        }).then(res => {
+          resolve(res)
         }).catch(err => {
           reject(err)
         })
@@ -125,6 +144,21 @@ export default {
         }
       })
     },
+    // 添加用户相关信息
+    /* addUserInfo ({ state, commit },{ userName, password ,confirm}) {
+      return new Promise((resolve, reject) => {
+        try {
+          addUserInfo({ userName, password ,confirm}).then(res => {
+            const data = res.data
+            resolve(data)
+          }).catch(err => {
+            reject(err)
+          })
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }, */
     // 此方法用来获取未读消息条数，接口只返回数值，不返回消息列表
     getUnreadMessageCount ({ state, commit }) {
       getUnreadCount().then(res => {

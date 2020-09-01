@@ -1,4 +1,21 @@
 <style lang="less">
+  #year {
+    position: absolute;
+    bottom: 1em;
+    left: 1em;
+    color: white;
+    -webkit-text-stroke: 1px black;
+    font-size: 2em;
+    font-weight: bold;
+  }
+
+  .divObj {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 10;
+  }
+
   .map-box {
     position: relative;
     background-color: #000;
@@ -99,10 +116,13 @@
   }
 
   .ol-zoom.ol-unselectable.ol-control {
-    position: absolute;
-    right: 0;
-    width: 30px;
-    top: 20%;
+    top: 30%;
+    left: calc(~'100% - 30px');
+  }
+
+  .locate {
+    top: calc(~'30% + 6em');
+    left: calc(~'100% - 30px');
   }
 
   .map-button {
@@ -143,9 +163,22 @@
     }
   }
 
+  .buttons {
+    position: absolute;
+    z-index: 10;
+    top: 20%;
+
+    left: 0;
+    background-color: #0f3a65;
+
+    button {
+      width: 100px;
+      text-align: center;
+    }
+  }
 </style>
 <template>
-  <div class="map-box" id="mainDiv">
+  <div class="map-box" id="map-container">
     <div class="map-box-user">
       <Avatar style="background-color: #1a3a65" icon="ios-person"/>
       <div class="map-box-con">
@@ -156,220 +189,199 @@
         </div>
       </div>
     </div>
-    <div v-if="icons" class="map-con">
-      <div>
-        <Row>
-          <Col span="20" class="map-con-title">图像语义分割处理平台</Col>
-          <Col span="4">
-            <Icon type="ios-arrow-back" class="map-con-icons" @click="setIcons"/>
-          </Col>
-        </Row>
-      </div>
-      <div class="map-select">
-        <div class="map-select-title">
-          <Icon type="ios-browsers" size="26" color="#2d8cf0"/>
-          区域选择
-        </div>
-        <div class="title-box">
-          <Row>
-            <Col span="7" class="titles">形状选择：</Col>
-            <Col span="14">
-              <Select v-model="typeSelect">
-                <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-              </Select>
-            </Col>
 
-          </Row>
-        </div>
-        <div class="title-box">
-          <Row>
-            <Col span="7" class="titles">
-              绘制区域：
-            </Col>
-            <Col span="14">
-              <RadioGroup v-model="disabledGroup">
-                <Row>
-                  <Col span="12">
-                    <Radio label="绘制"></Radio>
-                  </Col>
-                  <Col span="12">
-                    <Radio label="全图"></Radio>
-                  </Col>
-                </Row>
-              </RadioGroup>
+    <div class="buttons">
+      <ButtonGroup>
+        <Button @click="drawSelect" ghost>绘制</Button>
+        <br>
+        <Button @click="clearDraw" ghost>取消绘制</Button>
+        <br>
+        <Button @click="editSelect" ghost>编辑</Button>
+        <br>
+        <Button @click="cancelEdit" ghost>取消编辑</Button>
+        <br>
+        <Button @click="clearSelect" ghost>全图</Button>
+        <br>
+        <Button @click="clearMap" ghost>清除</Button>
+        <br>
+        <Button @click="startCompute" ghost>编译</Button>
+      </ButtonGroup>
 
-            </Col>
-          </Row>
-        </div>
-
-      </div>
-      <!--      <div class="map-select">
-              <div class="map-select-title"><Icon type="ios-settings" size="26" color="#2d8cf0" /> 设置</div>
-              <RadioGroup v-model="disabledGroup">
-                <Row>
-                  <Col span="12">
-                    <Radio label="绘制"></Radio>
-                  </Col>
-                  <Col span="12">
-                    <Radio label="全图"></Radio>
-                  </Col>
-                </Row>
-              </RadioGroup>
-            </div>
-            <div class="map-select">
-              <div class="map-select-title"><Icon type="logo-buffer" size="26" color="#2d8cf0" /> 数据</div>
-              <RadioGroup v-model="disabledGroup">
-                <Row>
-                  <Col span="12">
-                    <Radio label="绘制"></Radio>
-                  </Col>
-                  <Col span="12">
-                    <Radio label="全图"></Radio>
-                  </Col>
-                </Row>
-              </RadioGroup>
-            </div>-->
-      <div class="map-button">
-        <Row>
-          <Col span="24"><span>开始编译</span></Col>
-          <!--          <Col span="12"></Col>-->
-        </Row>
-      </div>
-      <div>
-        <span @click="clearSelect">清除</span>
-      </div>
-    </div>
-    <div class="map-icon" @click="setIcons" v-else>
-      <Icon class="map-icon-icons" type="ios-arrow-forward"/>
     </div>
   </div>
 </template>
 <script>
-import { mapActions } from 'vuex'
-import 'ol/ol.css'
-import Draw, {
-  createBox,
-  createRegularPolygon
-} from 'ol/interaction/Draw'
-import Map from 'ol/Map'
-import Polygon from 'ol/geom/Polygon'
-import View from 'ol/View'
-import { OSM, Vector as VectorSource } from 'ol/source'
-import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
-import { fromLonLat } from 'ol/proj'
+  import 'ol/ol.css';
+  import GeoJSON from 'ol/format/GeoJSON';
+  import Map from 'ol/Map';
+  import View from 'ol/View';
+  import VectorLayer from 'ol/layer/Vector';
+  import VectorSource from 'ol/source/Vector';
+  import DragAndDrop from 'ol/interaction/DragAndDrop';
+  import {fromLonLat} from 'ol/proj';
+  import Modify from 'ol/interaction/Modify';
+  import {Fill, Stroke, Style, Text} from 'ol/style';
+  import Draw from 'ol/interaction/Draw';
+  import TileLayer from "ol/layer/Tile";
+  import XYZ from "ol/source/XYZ";
+  import 'ol/ol.css';
+  import OSMSource from 'ol/source/OSM';
+  import {mapActions} from "vuex";
 
-export default {
-  name: 'home',
-  components: {},
-  data () {
-    return {
-      map: undefined,
-      icons: true,
-      disabledGroup: '绘制',
-      typeSelect: 'Polygon',
-      draw: undefined,
-      source: undefined,
-      cityList: [
-        {
-          value: 'Circle',
-          label: 'Circle'
-        }, {
-          value: 'Square',
-          label: 'Square'
-        }, {
-          value: 'Box',
-          label: 'Box'
-        }, {
-          value: 'Star',
-          label: 'Star'
-        }, {
-          value: 'None',
-          label: 'None'
-        }
-      ],
-      model1: ''
-    }
-  },
-  watch: {
-    'typeSelect' (val) {
-      this.map.removeInteraction(this.draw)
-      this.addInteraction()
-    }
-  },
-  mounted () {
-    var raster = new TileLayer({
-      source: new OSM()
-    })
-
-    this.source = new VectorSource({ wrapX: false })
-
-    var vector = new VectorLayer({
-      source: this.source
-    })
-
-    this.map = new Map({
-      layers: [raster, vector],
-      target: 'mainDiv',
-      view: new View({
-        center: fromLonLat([119.60753817138888, 30.49043631527778]),
-        zoom: 12
-      })
-      /* layers: [
-          new TileLayer({
-            source: new XYZ({
-              //PRCQV0Stg2Pgj9EKapMf6c9zdijg0MQ7
-              url: "https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-              wrapX: true
-            })
+  export default {
+    name: 'home',
+    components: {},
+    data() {
+      return {
+        source: undefined,
+        map: undefined,
+        layer: undefined,
+        dragAndDrop: undefined,
+        modify: undefined,
+        draw: undefined,
+        format: undefined,
+      }
+    },
+    watch: {},
+    mounted() {
+      this.initMap2();
+    },
+    methods: {
+      ...mapActions([
+        'handleLogOut'
+      ]),
+      logout() {
+        this.handleLogOut().then(() => {
+          this.$router.push({
+            name: 'login'
           })
-        ] */
-    })
-
-    this.testMap()
-    // this.addInteraction();
-  },
-  methods: {
-    testMap () {
-      var geometryFunction = createBox()
-      this.draw = new Draw({
-        source: this.source,
-        type: 'Circle',
-        geometryFunction: geometryFunction
-      })
-      this.map.addInteraction(this.draw)
-    },
-    ...mapActions([
-      'handleLogOut'
-    ]),
-    logout () {
-      this.handleLogOut().then(() => {
-        this.$router.push({
-          name: 'login'
         })
-      })
-    },
-    setIcons () {
-      this.icons = !this.icons
-    },
-    clearSelect () {
-      // this.map.removeInteraction(draw);
-      console.log(this.draw)
-      this.map.removeInteraction(this.draw)
-      this.testMap()
-    },
-    initPointMap () {
+      },
+      drawSelect() {
+        this.draw & this.map.addInteraction(this.draw);
+      },
+      clearSelect() {
+        this.draw & this.map.removeInteraction(this.draw);
+      },
+      clearMap() {
+        this.source & this.source.clear()
+      },
+      clearDraw() {
+        this.draw & this.map.removeInteraction(this.draw);
+      },
+      editSelect() {
+        this.modify & this.map.addInteraction(this.modify);
+      },
+      cancelEdit() {
+        this.modify & this.map.removeInteraction(this.modify);
+      },
+      startCompute() {
+        if (this.source) {
+          this.map.once('postcompose', function(event) {
+            //获取map中的canvas,并转换为图片
+            console.log(event);
+            var canvas = event.context.canvas;
+            if (navigator.msSaveBlob) {
+              navigator.msSaveBlob(canvas.msToBlob(), 'map.png');
+            } else {
+              canvas.toBlob(function(blob) {
+                saveAs(blob, 'map.png');
+              });
+            }
+          });
+          this.map.renderSync();
+        } else {
+         Message.warning('请选择编译区')
+        }
 
-    },
-    addInteraction () {
-      var value = this.typeSelect
-      if (value !== 'None') {
-        draw = new Draw({
-          source: source,
-          type: this.typeSelect
-        })
-        map.addInteraction(draw)
+
+
+      },
+      initMap() {
+        this.source = new VectorSource();
+        this.layer = new VectorLayer({
+          source: this.source,
+        });
+        this.map = new Map({
+          view: new View({
+            center: fromLonLat([119.60753817138888, 30.49043631527778]),
+            zoom: 6
+          }),
+          layers: [
+            new TileLayer({
+              /* source: new XYZ({
+                 url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                 wrapX: true
+               }),*/
+              source: new OSMSource()
+            })
+          ]
+        });
+
+        this.dragAndDrop = new DragAndDrop({// 文件
+          source: this.source,
+          formatConstructors: [GeoJSON]
+        });
+        this.modify = new Modify({//调整
+          source: this.source,
+        });
+        this.draw = new Draw({//画笔
+          type: 'Polygon',
+          source: this.source,
+        });
+
+        this.map.addLayer(this.layer);
+        this.map.addInteraction(this.dragAndDrop);
+        this.map.addInteraction(this.modify);
+        this.map.addInteraction(this.draw);
+        this.format = new GeoJSON({featureProjection: 'EPSG:3857'});
+
+      },
+      initMap2() {
+        this.source = new VectorSource();
+        const layer = new VectorLayer({
+          source: this.source,
+          style: function () {
+            return new Style({
+              fill: new Fill({
+                color: 'rgba(198,23,210,0.3)'
+              }),
+              stroke: new Stroke({
+                color: 'rgba(255,255,255,0.8)'
+              })
+            });
+          }
+        });
+        let dragAndDrop = new DragAndDrop({
+          source: this.source,
+          formatConstructors: [GeoJSON]
+        });
+        this.modify = new Modify({
+          source: this.source
+        });
+        this.draw = new Draw({
+          type: 'Polygon',
+          source: this.source
+        });
+
+        this.map = new Map({
+          target: 'map-container',
+          layers: [
+            new TileLayer({
+              source: new OSMSource()
+            })
+          ],
+          view: new View({
+            center: fromLonLat([110.90649323723949, 36.76492663092782]),
+            zoom: 6
+          })
+        });
+
+        this.map.addLayer(layer);
+        this.map.addInteraction(dragAndDrop);
+        // this.map.addInteraction( this.modify);
+        // this.map.addInteraction(this.draw);
       }
     }
   }
-}
 </script>

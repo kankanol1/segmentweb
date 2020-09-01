@@ -21,6 +21,18 @@ export const getUserInfo = (token) => {
     method: 'get'
   })
 }
+export const addUserInfo = ({ userName, password, confirm }) => {
+  const data = {
+    userName,
+    password,
+    confirm
+  }
+  return axios.request({
+    url: 'add_info',
+    data,
+    method: 'post'
+  })
+}
 
 export const logout = (token) => {
   return axios.request({

@@ -56,11 +56,8 @@ export default {
         confirm: ''
       },
       confirmRules: { required: true,
-        message: '不能为空',
         trigger: 'blur',
         validator: (rule, value, callback) => {
-          console.log(value)
-          console.log(this.form)
           if (this.form.password !== '' && value === '') {
             callback(new Error('确认密码不能为空'))
           } else if (this.form.password !== value) {
@@ -84,12 +81,10 @@ export default {
   methods: {
     handleSubmit () {
       this.$refs.registerForm.validate((valid) => {
-        console.log(valid)
         if (valid) {
           this.$emit('on-success-valid', {
             userName: this.form.userName,
             password: this.form.password,
-            confirm: this.form.confirm
           })
         }
       })
