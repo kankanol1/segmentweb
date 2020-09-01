@@ -211,177 +211,173 @@
   </div>
 </template>
 <script>
-  import 'ol/ol.css';
-  import GeoJSON from 'ol/format/GeoJSON';
-  import Map from 'ol/Map';
-  import View from 'ol/View';
-  import VectorLayer from 'ol/layer/Vector';
-  import VectorSource from 'ol/source/Vector';
-  import DragAndDrop from 'ol/interaction/DragAndDrop';
-  import {fromLonLat} from 'ol/proj';
-  import Modify from 'ol/interaction/Modify';
-  import {Fill, Stroke, Style, Text} from 'ol/style';
-  import Draw from 'ol/interaction/Draw';
-  import TileLayer from "ol/layer/Tile";
-  import XYZ from "ol/source/XYZ";
-  import 'ol/ol.css';
-  import OSMSource from 'ol/source/OSM';
-  import {mapActions} from "vuex";
+import 'ol/ol.css'
+import GeoJSON from 'ol/format/GeoJSON'
+import Map from 'ol/Map'
+import View from 'ol/View'
+import VectorLayer from 'ol/layer/Vector'
+import VectorSource from 'ol/source/Vector'
+import DragAndDrop from 'ol/interaction/DragAndDrop'
+import { fromLonLat } from 'ol/proj'
+import Modify from 'ol/interaction/Modify'
+import { Fill, Stroke, Style, Text } from 'ol/style'
+import Draw from 'ol/interaction/Draw'
+import TileLayer from 'ol/layer/Tile'
+import XYZ from 'ol/source/XYZ'
 
-  export default {
-    name: 'home',
-    components: {},
-    data() {
-      return {
-        source: undefined,
-        map: undefined,
-        layer: undefined,
-        dragAndDrop: undefined,
-        modify: undefined,
-        draw: undefined,
-        format: undefined,
+import OSMSource from 'ol/source/OSM'
+import { mapActions } from 'vuex'
+
+export default {
+  name: 'home',
+  components: {},
+  data () {
+    return {
+      source: undefined,
+      map: undefined,
+      layer: undefined,
+      dragAndDrop: undefined,
+      modify: undefined,
+      draw: undefined,
+      format: undefined
+    }
+  },
+  watch: {},
+  mounted () {
+    this.initMap2()
+  },
+  methods: {
+    ...mapActions([
+      'handleLogOut'
+    ]),
+    logout () {
+      this.handleLogOut().then(() => {
+        this.$router.push({
+          name: 'login'
+        })
+      })
+    },
+    drawSelect () {
+      this.draw & this.map.addInteraction(this.draw)
+    },
+    clearSelect () {
+      this.draw & this.map.removeInteraction(this.draw)
+    },
+    clearMap () {
+      this.source & this.source.clear()
+    },
+    clearDraw () {
+      this.draw & this.map.removeInteraction(this.draw)
+    },
+    editSelect () {
+      this.modify & this.map.addInteraction(this.modify)
+    },
+    cancelEdit () {
+      this.modify & this.map.removeInteraction(this.modify)
+    },
+    startCompute () {
+      if (this.source) {
+        this.map.once('postcompose', function (event) {
+          // 获取map中的canvas,并转换为图片
+          console.log(event)
+          var canvas = event.context.canvas
+          if (navigator.msSaveBlob) {
+            navigator.msSaveBlob(canvas.msToBlob(), 'map.png')
+          } else {
+            canvas.toBlob(function (blob) {
+              saveAs(blob, 'map.png')
+            })
+          }
+        })
+        this.map.renderSync()
+      } else {
+        Message.warning('请选择编译区')
       }
     },
-    watch: {},
-    mounted() {
-      this.initMap2();
-    },
-    methods: {
-      ...mapActions([
-        'handleLogOut'
-      ]),
-      logout() {
-        this.handleLogOut().then(() => {
-          this.$router.push({
-            name: 'login'
-          })
-        })
-      },
-      drawSelect() {
-        this.draw & this.map.addInteraction(this.draw);
-      },
-      clearSelect() {
-        this.draw & this.map.removeInteraction(this.draw);
-      },
-      clearMap() {
-        this.source & this.source.clear()
-      },
-      clearDraw() {
-        this.draw & this.map.removeInteraction(this.draw);
-      },
-      editSelect() {
-        this.modify & this.map.addInteraction(this.modify);
-      },
-      cancelEdit() {
-        this.modify & this.map.removeInteraction(this.modify);
-      },
-      startCompute() {
-        if (this.source) {
-          this.map.once('postcompose', function(event) {
-            //获取map中的canvas,并转换为图片
-            console.log(event);
-            var canvas = event.context.canvas;
-            if (navigator.msSaveBlob) {
-              navigator.msSaveBlob(canvas.msToBlob(), 'map.png');
-            } else {
-              canvas.toBlob(function(blob) {
-                saveAs(blob, 'map.png');
-              });
-            }
-          });
-          this.map.renderSync();
-        } else {
-         Message.warning('请选择编译区')
-        }
-
-
-
-      },
-      initMap() {
-        this.source = new VectorSource();
-        this.layer = new VectorLayer({
-          source: this.source,
-        });
-        this.map = new Map({
-          view: new View({
-            center: fromLonLat([119.60753817138888, 30.49043631527778]),
-            zoom: 6
-          }),
-          layers: [
-            new TileLayer({
-              /* source: new XYZ({
+    initMap () {
+      this.source = new VectorSource()
+      this.layer = new VectorLayer({
+        source: this.source
+      })
+      this.map = new Map({
+        view: new View({
+          center: fromLonLat([119.60753817138888, 30.49043631527778]),
+          zoom: 6
+        }),
+        layers: [
+          new TileLayer({
+            /* source: new XYZ({
                  url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                  wrapX: true
-               }),*/
-              source: new OSMSource()
-            })
-          ]
-        });
-
-        this.dragAndDrop = new DragAndDrop({// 文件
-          source: this.source,
-          formatConstructors: [GeoJSON]
-        });
-        this.modify = new Modify({//调整
-          source: this.source,
-        });
-        this.draw = new Draw({//画笔
-          type: 'Polygon',
-          source: this.source,
-        });
-
-        this.map.addLayer(this.layer);
-        this.map.addInteraction(this.dragAndDrop);
-        this.map.addInteraction(this.modify);
-        this.map.addInteraction(this.draw);
-        this.format = new GeoJSON({featureProjection: 'EPSG:3857'});
-
-      },
-      initMap2() {
-        this.source = new VectorSource();
-        const layer = new VectorLayer({
-          source: this.source,
-          style: function () {
-            return new Style({
-              fill: new Fill({
-                color: 'rgba(198,23,210,0.3)'
-              }),
-              stroke: new Stroke({
-                color: 'rgba(255,255,255,0.8)'
-              })
-            });
-          }
-        });
-        let dragAndDrop = new DragAndDrop({
-          source: this.source,
-          formatConstructors: [GeoJSON]
-        });
-        this.modify = new Modify({
-          source: this.source
-        });
-        this.draw = new Draw({
-          type: 'Polygon',
-          source: this.source
-        });
-
-        this.map = new Map({
-          target: 'map-container',
-          layers: [
-            new TileLayer({
-              source: new OSMSource()
-            })
-          ],
-          view: new View({
-            center: fromLonLat([110.90649323723949, 36.76492663092782]),
-            zoom: 6
+               }), */
+            source: new OSMSource()
           })
-        });
+        ]
+      })
 
-        this.map.addLayer(layer);
-        this.map.addInteraction(dragAndDrop);
-        // this.map.addInteraction( this.modify);
-        // this.map.addInteraction(this.draw);
-      }
+      this.dragAndDrop = new DragAndDrop({// 文件
+        source: this.source,
+        formatConstructors: [GeoJSON]
+      })
+      this.modify = new Modify({// 调整
+        source: this.source
+      })
+      this.draw = new Draw({// 画笔
+        type: 'Polygon',
+        source: this.source
+      })
+
+      this.map.addLayer(this.layer)
+      this.map.addInteraction(this.dragAndDrop)
+      this.map.addInteraction(this.modify)
+      this.map.addInteraction(this.draw)
+      this.format = new GeoJSON({ featureProjection: 'EPSG:3857' })
+    },
+    initMap2 () {
+      this.source = new VectorSource()
+      const layer = new VectorLayer({
+        source: this.source,
+        style: function () {
+          return new Style({
+            fill: new Fill({
+              color: 'rgba(198,23,210,0.3)'
+            }),
+            stroke: new Stroke({
+              color: 'rgba(255,255,255,0.8)'
+            })
+          })
+        }
+      })
+      let dragAndDrop = new DragAndDrop({
+        source: this.source,
+        formatConstructors: [GeoJSON]
+      })
+      this.modify = new Modify({
+        source: this.source
+      })
+      this.draw = new Draw({
+        type: 'Polygon',
+        source: this.source
+      })
+
+      this.map = new Map({
+        target: 'map-container',
+        layers: [
+          new TileLayer({
+            source: new OSMSource()
+          })
+        ],
+        view: new View({
+          center: fromLonLat([110.90649323723949, 36.76492663092782]),
+          zoom: 6
+        })
+      })
+
+      this.map.addLayer(layer)
+      this.map.addInteraction(dragAndDrop)
+      // this.map.addInteraction( this.modify);
+      // this.map.addInteraction(this.draw);
     }
   }
+}
 </script>

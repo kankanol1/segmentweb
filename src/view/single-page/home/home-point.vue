@@ -193,70 +193,69 @@
   </div>
 </template>
 <script>
-  import 'ol/ol.css';
-  import {Map, View} from 'ol';
-  import TileLayer from 'ol/layer/Tile';
-  import OSMSource from 'ol/source/OSM';
-  import {fromLonLat} from 'ol/proj';
-  import VectorLayer from 'ol/layer/Vector';
-  import VectorSource from 'ol/source/Vector';
-  import Stamen from 'ol/source/Stamen';
-  import Feature from 'ol/Feature';
-  import {circular} from 'ol/geom/Polygon';
-  import Point from 'ol/geom/Point';
-  import Control from 'ol/control/Control';
-  import {Style, Icon, Fill} from 'ol/style';
-  import Renderer from 'ol/renderer/webgl/PointsLayer';
-  import {clamp} from 'ol/math';
+import 'ol/ol.css'
+import { Map, View } from 'ol'
+import TileLayer from 'ol/layer/Tile'
+import OSMSource from 'ol/source/OSM'
+import { fromLonLat } from 'ol/proj'
+import VectorLayer from 'ol/layer/Vector'
+import VectorSource from 'ol/source/Vector'
+import Stamen from 'ol/source/Stamen'
+import Feature from 'ol/Feature'
+import { circular } from 'ol/geom/Polygon'
+import Point from 'ol/geom/Point'
+import Control from 'ol/control/Control'
+import { Style, Icon, Fill } from 'ol/style'
+import Renderer from 'ol/renderer/webgl/PointsLayer'
+import { clamp } from 'ol/math'
 
-  import {mapActions} from "vuex";
+import { mapActions } from 'vuex'
 
-  export default {
-    name: 'home',
-    components: {},
-    data() {
-      return {}
-    },
-    watch: {},
-    mounted() {
-
-      const source = new VectorSource();
-      const client = new XMLHttpRequest();
-      client.open('GET', 'data/meteorites.csv');
-      client.onload = function () {
-        const csv = client.responseText;
-        const features = [];
-        let prevIndex = csv.indexOf('\n') + 1;
-        let curIndex;
-        while ((curIndex = csv.indexOf('\n', prevIndex)) !== -1) {
-          const line = csv.substr(prevIndex, curIndex - prevIndex).split(',');
-          prevIndex = curIndex + 1;
-          const coords = fromLonLat([parseFloat(line[4]), parseFloat(line[3])]);
-          if (isNaN(coords[0]) || isNaN(coords[1])) {
-            continue;
-          }
-          features.push(new Feature({
-            mass: parseFloat(line[1]) || 0,
-            year: parseFloat(line[2]) || 0,
-            geometry: new Point(coords),
-          }));
+export default {
+  name: 'home',
+  components: {},
+  data () {
+    return {}
+  },
+  watch: {},
+  mounted () {
+    const source = new VectorSource()
+    const client = new XMLHttpRequest()
+    client.open('GET', 'data/meteorites.csv')
+    client.onload = function () {
+      const csv = client.responseText
+      const features = []
+      let prevIndex = csv.indexOf('\n') + 1
+      let curIndex
+      while ((curIndex = csv.indexOf('\n', prevIndex)) !== -1) {
+        const line = csv.substr(prevIndex, curIndex - prevIndex).split(',')
+        prevIndex = curIndex + 1
+        const coords = fromLonLat([parseFloat(line[4]), parseFloat(line[3])])
+        if (isNaN(coords[0]) || isNaN(coords[1])) {
+          continue
         }
-        source.addFeatures(features);
-      };
-      client.send();
+        features.push(new Feature({
+          mass: parseFloat(line[1]) || 0,
+          year: parseFloat(line[2]) || 0,
+          geometry: new Point(coords)
+        }))
+      }
+      source.addFeatures(features)
+    }
+    client.send()
 
-      const color = [1, 0, 0, 0.5];
+    const color = [1, 0, 0, 0.5]
 
-      class CustomLayer extends VectorLayer {
-        createRenderer() {
-          return new Renderer(this, {
-            colorCallback: function (feature, vertex, component) {
-              return color[component];
-            },
-            sizeCallback: function (feature) {
-              return 18 * clamp(feature.get('mass') / 200000, 0, 1) + 8;
-            },
-            fragmentShader: `
+    class CustomLayer extends VectorLayer {
+      createRenderer () {
+        return new Renderer(this, {
+          colorCallback: function (feature, vertex, component) {
+            return color[component]
+          },
+          sizeCallback: function (feature) {
+            return 18 * clamp(feature.get('mass') / 200000, 0, 1) + 8
+          },
+          fragmentShader: `
   precision mediump float;
 
   varying vec2 v_texCoord;
@@ -271,68 +270,67 @@
     gl_FragColor = v_color;
     gl_FragColor.a *= alpha;
   }`
-          });
-        }
+        })
       }
+    }
 
-      const minYear = 1850;
-      const maxYear = 2015;
-      const span = maxYear - minYear;
-      const rate = 10; // years per second
+    const minYear = 1850
+    const maxYear = 2015
+    const span = maxYear - minYear
+    const rate = 10 // years per second
 
-      const start = Date.now();
-      let currentYear = minYear;
+    const start = Date.now()
+    let currentYear = minYear
 
-      const yearElement = document.getElementById('year');
-      const map = new Map({
-        target: 'map-container',
-        layers: [
-          new TileLayer({
-            source: new Stamen({
-              layer: 'toner'
-            })
-          }),
-          /* new VectorLayer({
+    const yearElement = document.getElementById('year')
+    const map = new Map({
+      target: 'map-container',
+      layers: [
+        new TileLayer({
+          source: new Stamen({
+            layer: 'toner'
+          })
+        }),
+        /* new VectorLayer({
            // new CustomLayer({
              source: source
-           }),*/
-          new CustomLayer({
-            source: source
-          })
-        ],
-        view: new View({
-          center: fromLonLat([110.90649323723949, 36.76492663092782]),
-          zoom: 2,
+           }), */
+        new CustomLayer({
+          source: source
+        })
+      ],
+      view: new View({
+        center: fromLonLat([110.90649323723949, 36.76492663092782]),
+        zoom: 2
+      })
+    })
+
+    function render () {
+      const elapsed = rate * (Date.now() - start) / 1000
+      currentYear = minYear + (elapsed % span)
+      yearElement.innerText = currentYear.toFixed(0)
+
+      map.render()
+      requestAnimationFrame(render)
+    }
+
+    render()
+  },
+  methods: {
+    ...mapActions([
+      'handleLogOut'
+    ]),
+    logout () {
+      this.handleLogOut().then(() => {
+        this.$router.push({
+          name: 'login'
         })
       })
-
-      function render() {
-        const elapsed = rate * (Date.now() - start) / 1000;
-        currentYear = minYear + (elapsed % span);
-        yearElement.innerText = currentYear.toFixed(0);
-
-        map.render();
-        requestAnimationFrame(render);
-      }
-
-      render();
-
-   },
-    methods: {
-      ...mapActions([
-        'handleLogOut'
-      ]),
-      logout() {
-        this.handleLogOut().then(() => {
-          this.$router.push({
-            name: 'login'
-          })
-        })
-      },
-      drawSelect() {
-      },
-      clearSelect() {
-      },
+    },
+    drawSelect () {
+    },
+    clearSelect () {
     }
   }
+}
 </script>

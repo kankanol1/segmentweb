@@ -16,37 +16,37 @@
 </template>
 
 <script>
-  import LoginForm from '_c/login-form'
-  import {mapActions} from 'vuex'
-  import {Message} from 'iview'
-  export default {
-    components: {
-      LoginForm
-    },
+import LoginForm from '_c/login-form'
+import { mapActions } from 'vuex'
+import { Message } from 'iview'
+export default {
+  components: {
+    LoginForm
+  },
 
-    methods: {
-      ...mapActions([
-        'handleLogin',
-        'getUserInfo'
-      ]),
-      handleSubmit({userName, password}) {
-        this.handleLogin({userName, password}).then(res => {
-          if (res.msg === 'failed') {
-            Message.warning('请核对信息后登录！')
-          } else {
-            this.getUserInfo().then(res => {
-              this.$router.push({
-                name: this.$config.homeName
-              })
+  methods: {
+    ...mapActions([
+      'handleLogin',
+      'getUserInfo'
+    ]),
+    handleSubmit ({ userName, password }) {
+      this.handleLogin({ userName, password }).then(res => {
+        if (res.msg === 'failed') {
+          Message.warning('请核对信息后登录！')
+        } else {
+          this.getUserInfo().then(res => {
+            this.$router.push({
+              name: this.$config.homeName
             })
-          }
-        })
-      },
-      registerPage() {
-        this.$router.push({name: 'register'})
-      }
+          })
+        }
+      })
+    },
+    registerPage () {
+      this.$router.push({ name: 'register' })
     }
   }
+}
 </script>
 
 <style>

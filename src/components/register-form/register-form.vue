@@ -84,7 +84,7 @@ export default {
         if (valid) {
           this.$emit('on-success-valid', {
             userName: this.form.userName,
-            password: this.form.password,
+            password: this.form.password
           })
         }
       })

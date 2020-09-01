@@ -15,40 +15,40 @@
 </template>
 
 <script>
-  import RegisterForm from '_c/register-form'
-  import {mapActions} from 'vuex'
-  import {Message} from 'iview'
+import RegisterForm from '_c/register-form'
+import { mapActions } from 'vuex'
+import { Message } from 'iview'
 
-  export default {
-    components: {
-      RegisterForm
+export default {
+  components: {
+    RegisterForm
+  },
+  methods: {
+    ...mapActions([
+      'handleRegister'
+    ]),
+    handleSubmit ({ userName, password }) {
+      this.handleRegister({ userName, password }).then(res => {
+        if (res.status === 200) {
+          Message.info({
+            duration: 4,
+            content: '注册成功，即将返回登录页！',
+            onClose: () => {
+              this.$router.push({
+                name: 'login'
+              })
+            }
+          })
+        } else {
+          Message.info('注册失败，请核对信息后注册！')
+        }
+      })
     },
-    methods: {
-      ...mapActions([
-        'handleRegister',
-      ]),
-      handleSubmit({userName, password}) {
-        this.handleRegister({userName, password}).then(res => {
-          if (res.status === 200) {
-            Message.info({
-              duration: 4,
-              content: '注册成功，即将返回登录页！',
-              onClose: () => {
-                this.$router.push({
-                  name: 'login'
-                })
-              }
-            });
-          } else {
-            Message.info('注册失败，请核对信息后注册！')
-          }
-        })
-      },
-      loginPage() {
-        this.$router.push({name: 'login'})
-      }
+    loginPage () {
+      this.$router.push({ name: 'login' })
     }
   }
+}
 </script>
 
 <style>
