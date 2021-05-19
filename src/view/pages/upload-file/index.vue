@@ -6,7 +6,7 @@
         <input
           hidden
           class="img-button"
-          accept="image/png"
+          accept="image/jpeg"
           type="file">
       </div>
       <div>
@@ -56,7 +56,8 @@ export default {
         { name: '蓝色', color: '#61ca61', rgba: 'rgba(97,202,97,255)', label: '河流湖泊', c: [97, 202, 97, 255] },
         { name: '白色', color: '#fff', rgba: 'rgba(255,255,255,255)', label: '荒地', c: [255, 255, 255, 255] },
         { name: '黑色', color: '#000', rgba: 'rgba(0,0,0,255)', label: '未知(云、雾)', c: [0, 0, 0, 255] }
-      ]
+      ],
+        name:'',
     }
   },
   mounted () {
@@ -102,13 +103,16 @@ export default {
     selectFile () {
       let that = this
       $('.img-button').click().change(function (e) {
+          console.log(this.files[0]);
         if (this.files[0]) {
-          that.fileData = this.files[0]
+          that.fileData = this.files[0];
+          that.name = this.files[0].name;
           let reader = new FileReader()
           reader.onload = function (e) {
+              console.log(e);
             // that.src1=this.result;
             // '/img/23.jpg', target: '/img/result23.png'
-            that.src1 = '/img/23.jpg'
+            that.src1 = '/img/'+that.name;
           }
           reader.readAsDataURL(this.files[0])
         }
@@ -142,9 +146,9 @@ export default {
       }).then(res => {
         if (res.status === 200) {
           // this.src1 = img;
-          this.src1 = '/img/23.jpg'
+          // this.src1 = '/img/23.jpg'
           // this.src2 = res.data.base64;
-          this.src2 = '/img/result23.png'
+          this.src2 = '/img/result'+this.name.split('.')[0]+'.png'
 
           // this.src2 = '/img/result8.png';
           this.percentCom()

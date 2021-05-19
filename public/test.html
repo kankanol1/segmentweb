@@ -1,5 +1,5 @@
 <!DOCTYPE>
-<html>
+<html manifest="demo.appcache">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -28,16 +28,63 @@
   </style>
 </head>
 <body>
+<div id="demo"></div>
+<button onclick="getLocation()">获取位置</button>
+<div class="input-box">
+
+    <input type="color" name="color"><br>
+    <input type="date" name="date"><br>
+    <input type="datetime" name="datetime"><br>
+    <input type="datetime-local" name="datetime-local"><br>
+    <input type="email" name="email"><br>
+    <input type="month" name="month"><br>
+    <input type="number" name="number"><br>
+    <input type="range" name="range"><br>
+    <input type="search" name="search"><br>
+    <input type="tel" name="tel"><br>
+    <input type="time" name="time"><br>
+    <input type="url" name="url"><br>
+    <input type="week" name="week"><br>
+</div>    <button type="button" onclick="getData()">提交</button>
+
+
+
+
+
+
+
 <div style="text-align: center">
   <h4>倍速：<input value="1" type="number" min="1" max="100" id="add">
   </h4>
 </div>
 
-<div class="draggable-box">
+<!--<div class="draggable-box">
   <div draggable="true" class="draggable-obj" id="draggable-obj">
   </div>
-</div>
+</div>-->
 <script>
+
+    var x=document.getElementById("demo");
+    getLocation();
+    function getLocation()
+    {
+
+        if (navigator.geolocation)
+        {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        }
+        else
+        {
+            x.innerHTML="该浏览器不支持获取地理位置。";
+        }
+    }
+
+    function showPosition(position)
+    {
+        x.innerHTML="纬度: " + position.coords.latitude +
+            "<br>经度: " + position.coords.longitude;
+    }
+
   var parent = $('.draggable-box')[0];
   var limit_w = parent.offsetWidth;
   var limit_h = parent.offsetHeight;
@@ -75,7 +122,7 @@
     return num;
   }
 
-  moveStart();
+  // moveStart();
   function moveStart() {
     setInterval(function () {
       left = limitBounds(left + speed_x, limit_w - obj.offsetWidth,'left');
@@ -87,6 +134,16 @@
     speed_x = speed_x_origin *e.target.value
     speed_y = speed_y_origin *e.target.value
   })
+
+  function getData(){
+
+      const list = document.getElementsByClassName('input-box')[0].getElementsByTagName('input');
+      console.log(list);
+
+      for(let i=0;i<list.length;i++){
+          console.log(list[i].value);
+      }
+  }
 
 </script>
 </body>
