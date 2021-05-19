@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>春节倒计时</title>
+  <style>
+    html,body{
+      padding:0;
+      margin: 0;
+      background-color:red;
+    }
+    div{
+      text-align: center;
+      color:#fff;
+
+    }
+    div>p{
+      font-size: 50px;
+    }
+  </style>
+</head>
+<body>
+<div>
+  <h1>春节倒计时</h1>
+  <p id="box">
+    <span id="num1"></span>天
+    <span id="num2"></span>时
+    <span id="num3"></span>分
+    <span id="num4"></span>秒
+  </p>
+</div>
+<script>
+
+setInterval(function(){
+  var time1=new Date().getTime();
+  var time2= new Date('2021-02-12 23:59:59').getTime();
+  var time= Math.round((time2 -time1)/1000);
+  var num1 = time%60;
+  var num2 = (time-num1)/60%60;
+  var num3 = (time - num1 - num2*60)/60/60%24;
+  var num4 = (time - num1 - num2*60 -num3*60*60)/60/60/24;
+  var arr = [num4,num3,num2,num1];
+
+  var oSpan = document.getElementById('box').children;
+  for(var i=0;i<oSpan.length;i++){
+    oSpan[i].innerText= arr[i]
+  }
+},1000)
+
+</script>
+</body>
+</html>

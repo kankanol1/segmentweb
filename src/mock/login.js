@@ -16,16 +16,47 @@ let USER_MAP = {
     access: ['admin'],
     token: 'admin',
     avatar: 'https://avatars0.githubusercontent.com/u/20942571?s=460&v=4'
+  },
+  test: {
+    name: 'test',
+    password: 'test',
+    user_id: '3',
+    access: ['admin'],
+    token: 'test',
+    avatar: 'https://avatars0.githubusercontent.com/u/20942571?s=460&v=4'
   }
 }
 
 export const login = req => {
-  req = JSON.parse(req.body)
+  req = JSON.parse(req.body);
+
+ // USER_MAP[req.userName].password===req.password
+
+  if(USER_MAP[req.userName]){
+    if(USER_MAP[req.userName].password===req.password){
+      return { token: USER_MAP[req.userName].token,msg:'success！' }
+    }else{
+      return {msg:'密码错误！' }
+    }
+  }else{
+    return {msg:'用户名不存在！' }
+  }
+
+
+   /*
+    if(USER_MAP[req.userName] && USER_MAP[req.userName].password!==req.password){
+    return { token: 'error',msg:'密码错误！' }
+  }else if(USER_MAP[req.userName] && USER_MAP[req.userName].password===req.password){
+
+  }
+
+
+
   if (USER_MAP[req.userName]) {
     return { token: USER_MAP[req.userName].token }
-  } else {
+  }else {
     return { token: 'error' }
-  }
+  }*/
 }
 
 export const getUserInfo = req => {

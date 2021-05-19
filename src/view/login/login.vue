@@ -4,11 +4,14 @@
 
 <template>
   <div class="login">
+    <h1 style="text-align: center;color:#fff;position: fixed;top:20px;left:20px">土地资源系统</h1>
     <div class="login-con">
       <Card icon="log-in" title="欢迎登录" :bordered="false">
         <div class="form-con">
-          <login-form @on-success-valid="handleSubmit"></login-form>
-          <span>还没有账户？ <a @click="registerPage">立即注册</a></span>
+          <login-form :loading="loading" @on-success-valid="handleSubmit"></login-form>
+          <span>还没有账户？
+            <a @click="registerPage">立即注册</a>
+          </span>
         </div>
       </Card>
     </div>
@@ -18,25 +21,39 @@
 <script>
 import LoginForm from '_c/login-form'
 import { mapActions } from 'vuex'
-import { Message } from 'iview'
+import { setToken, getToken } from '@/libs/util'
 export default {
   components: {
     LoginForm
   },
-
+  data () {
+    return {
+      loading: false
+    }
+  },
   methods: {
     ...mapActions([
       'handleLogin',
       'getUserInfo'
     ]),
     handleSubmit ({ userName, password }) {
+      this.loading = true
       this.handleLogin({ userName, password }).then(res => {
-        if (res.msg === 'failed') {
-          Message.warning('请核对信息后登录！')
+        if (!res.code) {
+          this.$Message.warning(res.msg)
+          this.loading = false
         } else {
           this.getUserInfo().then(res => {
+            const token = getToken()
+            sessionStorage.setItem('username', userName)
+            sessionStorage.setItem('userInfo', JSON.stringify(res))
+            if (token !== userName) {
+              setToken(userName)
+            }
             this.$router.push({
               name: this.$config.homeName
+            }).finally(() => {
+              this.loading = false
             })
           })
         }
@@ -48,7 +65,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

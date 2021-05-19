@@ -1,4 +1,5 @@
 import Mock from 'mockjs'
+import { segmentImg } from './img'
 import { login, logout, getUserInfo, addUserInfo } from './login'
 import { getTableData, getDragList, uploadImage, getOrgData, getTreeSelectData } from './data'
 import { getMessageInit, getContentByMsgId, hasRead, removeReaded, restoreTrash, messageCount } from './user'
@@ -10,6 +11,7 @@ Mock.setup({
 
 // 登录相关和获取用户信息
 Mock.mock(/\/login/, login)
+Mock.mock(/\/img/, segmentImg)
 Mock.mock(/\/get_info/, getUserInfo)
 Mock.mock(/\/add_info/, addUserInfo)
 Mock.mock(/\/logout/, logout)

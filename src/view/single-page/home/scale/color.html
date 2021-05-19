@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    #canvas{
+      width: 200px;
+      height: 200px;
+    }
+  </style>
+</head>
+<body>
+<div>
+  <img id="img" src="images/01.jpg" alt="">
+</div>
+<script>
+  // 通过js获取图像数据
+  var canvas_obj = document.createElement("canvas");   // 获取canvas标签对象
+  var ctx = canvas_obj.getContext("2d");                  // 设置在画布上绘图的环境
+  var img_obj = document.getElementById("img");           // 获取img标签对象
+  ctx.drawImage(img_obj, 0, 0);                           // 将图片绘制到画布上
+  var imgData_obj = ctx.getImageData(0,0,canvas_obj.width,canvas_obj.height);    // 获取画布上的图像像素矩阵
+  var imgData = imgData_obj.data;     // 获取到的数据为一维数组，包含图像的RGBA四个通道数据
+  // console.log(imgData.length);
+
+  // 将获取到的图像数据去除A通道
+  var imgArr = [];
+  for(var i=0; i<imgData.length; i += 4){
+    imgArr.push(imgData[i], imgData[i+1], imgData[i+2])
+  }
+  // console.log(imgArr)
+
+</script>
+</body>
+</html>

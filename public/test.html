@@ -1,0 +1,94 @@
+<!DOCTYPE>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <script src="./js/elm-pep.js"></script>
+  <script src="https://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+  <title>拖动</title>
+  <style>
+    .draggable-box {
+      position: relative;
+      height: 80%;
+      width: 80%;
+      background-color: #1a3a65;
+      margin: 0 auto;
+    }
+
+    .draggable-obj {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      top: 0;
+      left: 0;
+      cursor: move;
+      background-color: #2d8cf0;
+    }
+  </style>
+</head>
+<body>
+<div style="text-align: center">
+  <h4>倍速：<input value="1" type="number" min="1" max="100" id="add">
+  </h4>
+</div>
+
+<div class="draggable-box">
+  <div draggable="true" class="draggable-obj" id="draggable-obj">
+  </div>
+</div>
+<script>
+  var parent = $('.draggable-box')[0];
+  var limit_w = parent.offsetWidth;
+  var limit_h = parent.offsetHeight;
+  var startPoint = [];
+  var speed_x = Math.random() + 0.000001;
+  var speed_y = Math.random() + 0.000001;
+  var speed_x_origin = speed_x;
+  var speed_y_origin = speed_y;
+  var left = 0;
+  var tops = 0;
+  var obj = $('#draggable-obj')[0];
+
+  $(obj).bind('dragstart', function (e) {
+    startPoint = [e.originalEvent.pageX, e.originalEvent.pageY];
+  }).bind('drag', function (e) {
+  })
+    .bind('dragend', function (e) {
+      left = limitBounds(e.originalEvent.pageX - startPoint[0] + left, limit_w - e.target.offsetWidth);
+      tops = limitBounds(e.originalEvent.pageY - startPoint[1] + tops, limit_h - e.target.offsetHeight);
+      $(this).css({left: left + 'px', top: tops + 'px'});
+    })
+
+  /**
+   * 边界判定
+   * @param num
+   * @param big
+   * @returns {number}
+   */
+  function limitBounds(num, big,type) {
+    if (num <= 0 || num >= big) {
+      num = num <= 0 ? 0 : big;
+      if(type==='left')speed_x = -speed_x
+      else speed_y= -speed_y
+    }
+    return num;
+  }
+
+  moveStart();
+  function moveStart() {
+    setInterval(function () {
+      left = limitBounds(left + speed_x, limit_w - obj.offsetWidth,'left');
+      tops = limitBounds(tops + speed_y, limit_h - obj.offsetHeight,'tops');
+      $('#draggable-obj').css({left: left + 'px', top: tops + 'px'});
+    }, 12)
+  }
+  $('#add').bind('change',function(e){
+    speed_x = speed_x_origin *e.target.value
+    speed_y = speed_y_origin *e.target.value
+  })
+
+</script>
+</body>
+</html>
+

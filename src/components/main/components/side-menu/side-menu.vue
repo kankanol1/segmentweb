@@ -96,6 +96,7 @@ export default {
       else this.openedNames = getUnion(this.openedNames, this.getOpenedNamesByActiveName(name))
     },
     openNames (newNames) {
+      console.log(newNames)
       this.openedNames = newNames
     },
     openedNames () {

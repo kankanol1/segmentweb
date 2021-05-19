@@ -22,8 +22,8 @@ const turnTo = (to, access, next) => {
 }
 
 router.beforeEach((to, from, next) => {
-  iView.LoadingBar.start()
-  const token = getToken()
+  // iView.LoadingBar.start()
+  const token = getToken();
   if (!token && to.name !== LOGIN_PAGE_NAME && to.name !== REGISTER_PAGE_NAME) {
     // 未登录且要跳转的页面不是登录页
     next({
@@ -56,7 +56,7 @@ router.beforeEach((to, from, next) => {
 
 router.afterEach(to => {
   setTitle(to, router.app)
-  iView.LoadingBar.finish()
+  // iView.LoadingBar.finish()
   window.scrollTo(0, 0)
 })
 

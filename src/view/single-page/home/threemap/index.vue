@@ -1,0 +1,112 @@
+<template>
+  <div id="main"></div>
+</template>
+
+<script>
+export default {
+  name: 'index',
+  data () {
+    return {
+
+    }
+  },
+  methods: {
+    initMap () {
+      var myChart = echarts.init(document.getElementById('main'))
+      // 存储切换的每一级地图信息
+      var mapStack = []
+      var timeFn = null
+      var curMap = {}
+      // 初始化地图
+      loadMap('100000', 'china')
+      /**
+         绑定用户切换地图区域事件
+         cityMap对象存储着地图区域名称和区域的信息(name-code)
+         当mapCode有值,说明可以切换到下级地图
+         同时保存上级地图的编号和名称
+         */
+      myChart.on('mapselectchanged', function (params) {
+        clearTimeout(timeFn)
+        // 由于单击事件和双击事件冲突，故单击的响应事件延迟250毫秒执行
+        timeFn = setTimeout(function () {
+          var name = params.batch[0].name
+          var mapCode = cityMap[name]
+          if (!mapCode) {
+            alert('无此区域地图显示')
+            return
+          }
+          loadMap(mapCode, name)
+          // 将上一级地图信息压入mapStack
+          mapStack.push({
+            mapCode: curMap.mapCode,
+            mapName: curMap.mapName
+          })
+        }, 250)
+      })
+      /**
+         绑定双击事件，并加载上一级地图
+         */
+      myChart.on('dblclick', function (params) {
+        // 当双击事件发生时，清除单击事件，仅响应双击事件
+        clearTimeout(timeFn)
+        var map = mapStack.pop()
+        if (!mapStack.length && !map) {
+          alert('已经到达最上一级地图了')
+          return
+        }
+        loadMap(map.mapCode, map.mapName)
+      })
+      /**
+         加载地图：根据地图所在省市的行政编号，
+         获取对应的json地图数据，然后向echarts注册该区域的地图
+         最后加载地图信息
+         @params {String} mapCode:地图行政编
+         号,for example['中国':'100000', '湖南': '430000']
+         @params {String} mapName: 地图名称
+         */
+      function loadMap (mapCode, mapName) {
+        $.getJSON('china-main-city/' + mapCode + '.json', function (data) {
+          if (data) {
+            echarts.registerMap(mapName, data)
+            var option = {
+              tooltip: {
+                trigger: 'item',
+                formatter: '{b}'
+              },
+              series: [
+                {
+                  name: '',
+                  type: 'map',
+                  mapType: mapName,
+                  selectedMode: 'multiple',
+                  label: {
+                    normal: {
+                      show: true
+                    },
+                    emphasis: {
+                      show: true
+                    }
+                  },
+                  data: [
+                  ]
+                }
+              ]
+            }
+            myChart.setOption(option)
+            curMap = {
+              mapCode: mapCode,
+              mapName: mapName
+            }
+          } else {
+            alert('无法加载该地图')
+          }
+        })
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>

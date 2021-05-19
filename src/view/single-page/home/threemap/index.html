@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Map</title>
+    <script src="https://cdn.bootcss.com/echarts/4.4.0-rc.1/echarts.min.js"></script>
+    <script src="https://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+    <script src="https://www.jq22.com/demo/echarts-chinazMap201911172308/china-main-city-map.js" charset="utf-8"></script>
+  </head>
+<body>
+
+<div id="main" style="width:calc(100vw);height:calc(100vh);"></div>
+<script type="text/javascript">
+  //https://www.jq22.com/demo/echarts-chinazMap201911172308/dblClickMap.html
+  //https://gadm.org/download_country_v3.html
+  //https://datav.aliyun.com/tools/atlas/#&lat=-84.33698037639608&lng=523.828125&zoom=0
+  //http://geojson.io/#map=1/78/-142
+ //https://www.pianshen.com/article/3011421489/
+  var myChart = echarts.init(document.getElementById('main'));
+  //存储切换的每一级地图信息
+  var mapStack = [];
+  var timeFn = null;
+  var curMap = {};
+  var cityMap = {};
+  // cityMap['']='cityMap';
+  //初始化地图
+  loadMap('countries', 'countries');
+  /**
+   绑定用户切换地图区域事件
+   cityMap对象存储着地图区域名称和区域的信息(name-code)
+   当mapCode有值,说明可以切换到下级地图
+   同时保存上级地图的编号和名称
+   */
+  myChart.on('mapselectchanged', function(params) {
+    clearTimeout(timeFn);
+    //由于单击事件和双击事件冲突，故单击的响应事件延迟250毫秒执行
+    timeFn = setTimeout(function(){
+      var name = params.batch[0].name;
+      // console.log(name);
+      //China: "CHN"
+      var mapCode = cityMap[name];
+      if (!mapCode) {
+        alert('无下一级区域地图显示');
+        return;
+      }
+      loadMap(mapCode, name);
+      //将上一级地图信息压入mapStack
+      mapStack.push({
+        mapCode: curMap.mapCode,
+        mapName: curMap.mapName
+      });
+    }, 250);
+  });
+  /**
+   绑定双击事件，并加载上一级地图
+   */
+  myChart.on('dblclick', function(params) {
+    //当双击事件发生时，清除单击事件，仅响应双击事件
+    clearTimeout(timeFn);
+    var map = mapStack.pop();
+    if (!mapStack.length && !map) {
+      alert('已经到达最上一级地图了');
+      return;
+    }
+    loadMap(map.mapCode, map.mapName);
+  });
+  function loadMap(mapCode, mapName) {
+    // console.log(mapCode,mapName);
+    var str = '';
+    if(mapCode==='countries'){
+      str = 'countries.geo.json';
+      //mapCode + '.geo.json'
+    }else if(mapCode==='CHN'){
+
+      str ='data4/100000.json';
+    }else if(parseInt(mapCode)){
+      str ='data4/'+mapCode+'.json';
+    }else {
+      str = 'countries/'+mapCode+'.geo.json';
+    }
+    $.getJSON('./' + str,
+      function (data) {
+      if (data) {
+        if(data.features.length===1){
+            cityMap[data.features[0].properties.name]=undefined;
+        }else{
+          data.features.map(i=>{
+            cityMap[i.properties.name]=i.properties.adcode||i.id;
+          });
+        }
+        echarts.registerMap(mapName, data);
+        var option = {
+          tooltip: {
+            trigger: 'item',
+            formatter: '{b}'
+          },
+          series: [
+            {
+              name: 'map',
+              type: 'map',
+              roam:false,//'scale' move true false
+              mapType: mapName,
+              selectedMode : 'multiple',
+              zoom:1,
+              // center: data.features[0].geometry.coordinates[0][0][0],
+              scaleLimit:{
+                min:1,
+                max:2,
+              },
+              label: {
+                normal: {
+                  show:!!parseInt(mapCode) || mapCode==='CHN',
+                },
+                emphasis: {
+                  show: true
+                }
+              },
+              itemStyle:{
+                areaColor: '#00e1ff' ,
+              },
+              emphasis:{
+                itemStyle:{
+                  areaColor: '#88ff00' ,
+                },
+              },
+              data:[
+              ]
+            }
+          ]
+        };
+        myChart.setOption(option);
+        curMap = {
+          mapCode: mapCode,
+          mapName: mapName
+        };
+      } else {
+        alert('无法加载该地图');
+      }
+    });
+  }
+
+
+</script>
+</body>
+</html>
+

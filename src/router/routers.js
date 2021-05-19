@@ -43,7 +43,7 @@ export default [
     component: Main,
     meta: {
       hideInMenu: true,
-      notCache: true
+      notCache: true,
     },
     children: [
       {
@@ -53,21 +53,118 @@ export default [
           hideInMenu: true,
           title: '首页',
           notCache: true,
-          icon: 'md-home'
+          icon: 'md-home',
         },
         component: () => import('@/view/single-page/home')
       },
       {
-        path: '/google',
-        name: 'google',
+        path: '/test',
+        name: 'test',
         meta: {
           hideInMenu: true,
           title: '首页',
           notCache: true,
+          icon: 'md-home',
+        },
+        component: () => import('@/view/single-page/home/test')
+      },
+      {
+        path: '/canvas',
+        name: 'canvas',
+        meta: {
+          hideInMenu: true,
+          title: '首页',
+          notCache: true,
+          icon: 'md-home',
+        },
+        component: () => import('@/view/single-page/home/all')
+      },
+      {
+        path: '/tiandi',
+        name: 'tiandi',
+        meta: {
+          hideInMenu: true,
+          title: '多图',
+          notCache: true,
+          icon: 'md-home',
+        },
+        component: () => import('@/view/single-page/home/tiandi')
+      },
+      {
+        path: '/png',
+        name: 'png',
+        meta: {
+          hideInMenu: true,
+          title: '首页',
+          notCache: true,
+          icon: 'md-home',
+        },
+        component: () => import('@/view/single-page/home/png')
+      },
+      {
+        path: '/split',
+        name: 'split',
+        meta: {
+          hideInMenu: true,
+          title: 'split',
+          notCache: true,
+          icon: 'md-home',
+        },
+        component: () => import('@/view/single-page/home/splitCom')
+      },
+      {
+        path: '/tests',
+        name: 'tests',
+        meta: {
+          hideInMenu: true,
+          title: '测试',
+          notCache: true,
+          icon: 'md-home',
+        },
+        component: () => import('@/view/pages/test-file/index')
+      },
+      {
+        path: '/canvastest',
+        name: 'canvastest',
+        meta: {
+          hideInMenu: true,
+          title: '首页',
+          notCache: true,
+          icon: 'md-home',
+        },
+        component: () => import('@/view/single-page/home/canvastest')
+      }
+    ]
+  },
+
+  {
+    path: '/map',
+    name: 'map',
+    component: Main,
+    meta: {
+      hideInMenu: true,
+      title: '地图',
+      icon: 'md-home'
+    },
+    children: [
+      {
+        path: '/test',
+        name: 'test',
+        meta: {
+          title: '首页',
           icon: 'md-home'
         },
-        component: () => import('@/view/google-map/google')
-      }
+        component: () => import('@/view/google-map/绘制矩形.vue')
+      },
+      {
+        path: '/picture',
+        name: 'picture',
+        meta: {
+          title: '图片编译',
+          icon: 'md-home'
+        },
+        component: () => import('@/view/pages/upload-file/index.vue')
+      },
     ]
   },
 
@@ -114,7 +211,9 @@ export default [
     path: '/directive',
     name: 'directive',
     meta: {
-      hideInBread: true
+      hideInBread: true,
+      hideInMenu: true
+
     },
     component: Main,
     children: [
@@ -133,6 +232,7 @@ export default [
     path: '/multilevel',
     name: 'multilevel',
     meta: {
+      hideInMenu: false,
       icon: 'md-menu',
       title: '多级菜单'
     },
@@ -151,9 +251,8 @@ export default [
         path: 'level_2_2',
         name: 'level_2_2',
         meta: {
-          access: ['super_admin'],
           icon: 'md-funnel',
-          showAlways: true,
+          showAlways: false,
           title: '二级-2'
         },
         component: parentView,
@@ -193,7 +292,7 @@ export default [
     path: '/argu',
     name: 'argu',
     meta: {
-      hideInMenu: true
+      hideInMenu: false
     },
     component: Main,
     children: [
@@ -224,7 +323,7 @@ export default [
     path: '/401',
     name: 'error_401',
     meta: {
-      hideInMenu: true
+      hideInMenu: false
     },
     component: () => import('@/view/error-page/401.vue')
   },
@@ -232,7 +331,7 @@ export default [
     path: '/500',
     name: 'error_500',
     meta: {
-      hideInMenu: true
+      hideInMenu: false
     },
     component: () => import('@/view/error-page/500.vue')
   },
@@ -240,7 +339,7 @@ export default [
     path: '*',
     name: 'error_404',
     meta: {
-      hideInMenu: true
+      hideInMenu: false
     },
     component: () => import('@/view/error-page/404.vue')
   }

@@ -13,7 +13,15 @@ module.exports = {
       'x-invalid-end-tag': false
     }],
     'no-undef': 'off',
-    'camelcase': 'off'
+    'no-unused-vars': 'warn',
+    'vue/no-unused-vars': "off",
+    'camelcase': 'off',
+    "no-self-assign": [
+      "error",
+      {
+        "props": false
+      }
+    ]
   },
   parserOptions: {
     parser: 'babel-eslint'

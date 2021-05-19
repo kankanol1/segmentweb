@@ -1,9 +1,6 @@
-<style lang="less">
-  @import './register.less';
-</style>
 <template>
-  <div class="login">
-    <div class="login-con">
+  <div class="register">
+    <div class="register-con">
       <Card icon="log-in" title="账号注册" :bordered="false">
         <div class="form-con">
           <register-form @on-success-valid="handleSubmit"></register-form>
@@ -51,6 +48,6 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="less">
+  @import './register.less';
 </style>
